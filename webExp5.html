@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Web Tech Lab - Experiment 5</title>
+  <style>
+    :root{
+      --bg: linear-gradient(135deg,#f6f8ff 0%, #fff6f0 100%);
+      --card: #ffffff;
+      --accent: #6c63ff;
+      --accent-2: #ff6b6b;
+      --muted: #6b6b80;
+      --glass: rgba(255,255,255,0.7);
+      --radius: 14px;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: #222;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      padding:1.25rem 2rem;
+      background: linear-gradient(90deg, rgba(108,99,255,0.14), rgba(255,107,107,0.06));
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+      position: sticky;
+      top:0;
+      backdrop-filter: blur(4px);
+    }
+    header h1{
+      font-size:1.15rem;
+      margin:0;
+      letter-spacing:0.2px;
+    }
+    header .meta{
+      text-align:right;
+      font-size:0.85rem;
+      color:var(--muted);
+    }
+
+    main{
+      max-width:1100px;
+      margin:2rem auto;
+      padding: 0 1rem;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:1.5rem;
+      align-items:start;
+    }
+
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:1.25rem;
+    }
+
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      padding:1rem;
+      box-shadow: 0 8px 26px rgba(16,24,40,0.06);
+      border: 1px solid rgba(99,102,241,0.06);
+    }
+    .card h2{
+      margin:0 0 0.6rem 0;
+      font-size:1rem;
+      color:var(--accent);
+      display:flex;
+      align-items:center;
+      gap:0.5rem;
+    }
+    .card p.help{
+      margin:0 0 0.6rem 0;
+      color:var(--muted);
+      font-size:0.9rem;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:0.6rem;
+      margin-bottom:0.6rem;
+    }
+
+    label{ display:block; font-size:0.85rem; color:#333; margin-bottom:0.28rem;}
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      padding:0.6rem 0.7rem;
+      border-radius:10px;
+      border:1px solid #e6e6f0;
+      font-size:0.95rem;
+      outline:none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus{
+      box-shadow: 0 4px 14px rgba(108,99,255,0.12);
+      border-color: rgba(108,99,255,0.28);
+    }
+
+    button.primary{
+      background: linear-gradient(90deg,var(--accent), #8a6bff);
+      color:white;
+      padding:0.6rem 0.9rem;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 8px 18px rgba(108,99,255,0.12);
+    }
+    button.ghost{
+      background:transparent;
+      border:1px solid #e6e6f0;
+      padding:0.5rem 0.8rem;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .result{
+      margin-top:0.6rem;
+      padding:0.7rem;
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(108,99,255,0.06), rgba(255,255,255,0.02));
+      font-weight:600;
+      color: #184;
+    }
+
+    aside .note{
+      font-size:0.9rem;
+      color:var(--muted);
+    }
+
+    @media (max-width:980px){
+      main{ grid-template-columns: 1fr; }
+      aside{ order: 2; }
+    }
+
+    .badge {
+      display:inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size:0.78rem;
+      background:linear-gradient(90deg,var(--accent-2), #ff9b9b);
+      color:white;
+      font-weight:700;
+    }
+
+    footer{
+      max-width:1100px;
+      margin:1.5rem auto 3rem;
+      padding:0 1rem;
+      color:var(--muted);
+      font-size:0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Experiment 5 — DOM, Events & Functions</h1>
+      <div style="font-size:0.85rem;color:var(--muted)">Interactive exercises: Calculator • BMI • Currency • EMI</div>
+    </div>
+    <div class="meta">
+      <div><span class="badge">23CS2049</span></div>
+      <div style="margin-top:6px">Made by: <strong contenteditable="true">Your Name</strong></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stack">
+      <article class="card" id="calcCard">
+        <h2>Basic Calculator</h2>
+        <p class="help">Enter two numbers and choose the operation. This uses <code>onchange</code> for operation and <code>onclick</code> to compute.</p>
+
+        <div class="controls">
+          <div>
+            <label for="c-num1">Number 1</label>
+            <input id="c-num1" type="number" placeholder="e.g. 12">
+          </div>
+          <div>
+            <label for="c-num2">Number 2</label>
+            <input id="c-num2" type="number" placeholder="e.g. 5">
+          </div>
+        </div>
+
+        <label for="c-op">Operation</label>
+        <select id="c-op" onchange="calculate();">
+          <option value="+">Addition (+)</option>
+          <option value="-">Subtraction (-)</option>
+          <option value="*">Multiply (*)</option>
+          <option value="/">Divide (/)</option>
+        </select>
+
+        <div style="margin-top:0.8rem">
+          <button class="primary" onclick="calculate()">Compute</button>
+          <button class="ghost" onclick="clearCalc()">Clear</button>
+        </div>
+
+        <div id="c-output" class="result" aria-live="polite">Result: —</div>
+      </article>
+
+      <article class="card" id="bmiCard">
+        <h2>BMI Calculator</h2>
+        <p class="help">Type weight and height. Result updates instantly using <code>oninput</code>.</p>
+
+        <div class="controls">
+          <div>
+            <label for="b-weight">Weight (kg)</label>
+            <input id="b-weight" type="number" step="0.1" oninput="calcBMI()" placeholder="e.g. 65">
+          </div>
+          <div>
+            <label for="b-height">Height (cm)</label>
+            <input id="b-height" type="number" step="0.1" oninput="calcBMI()" placeholder="e.g. 170">
+          </div>
+        </div>
+
+        <div id="b-output" class="result">BMI: — | Status: —</div>
+      </article>
+
+      <article class="card" id="currencyCard">
+        <h2>Currency Convertor</h2>
+        <p class="help">Select a base currency and type amount. Updates live (<code>oninput</code>) and uses DOM methods.</p>
+
+        <div class="controls">
+          <div>
+            <label for="cur-amt">Amount</label>
+            <input id="cur-amt" type="number" step="0.01" value="1" oninput="convertCurrency()">
+          </div>
+          <div>
+            <label for="cur-from">From</label>
+            <select id="cur-from" onchange="convertCurrency()">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="INR">INR</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:0.6rem">
+          <label for="cur-to">To</label>
+          <select id="cur-to" onchange="convertCurrency()">
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+          </select>
+        </div>
+
+        <div id="cur-output" class="result">Converted: —</div>
+      </article>
+
+      <article class="card" id="emiCard">
+        <h2>Bank Loan EMI Calculator</h2>
+        <p class="help">Enter loan details and click Calculate (<code>onclick</code> used). Formula used: EMI = P * r*(1+r)^N / ((1+r)^N -1) where r is monthly interest (annual/12/100).</p>
+
+        <div class="controls">
+          <div>
+            <label for="emi-p">Loan Amount (P)</label>
+            <input id="emi-p" type="number" step="0.01" placeholder="e.g. 500000">
+          </div>
+          <div>
+            <label for="emi-r">Annual Rate (%)</label>
+            <input id="emi-r" type="number" step="0.01" placeholder="e.g. 7.5">
+          </div>
+        </div>
+
+        <div class="controls">
+          <div>
+            <label for="emi-years">Tenure (years)</label>
+            <input id="emi-years" type="number" step="1" placeholder="e.g. 5">
+          </div>
+          <div style="align-self:end">
+            <button class="primary" onclick="calculateEMI()">Calculate EMI</button>
+          </div>
+        </div>
+
+        <div id="emi-output" class="result">Monthly EMI: —</div>
+      </article>
+    </section>
+
+    <aside class="card">
+      <h2 style="color:var(--accent-2)">Quick Notes</h2>
+      <p class="note">This page demonstrates the DOM API shown in your PDF: <code>getElementById</code>, <code>querySelector</code>, <code>oninput</code>, <code>onchange</code>, and <code>onclick</code>. You can edit the "Made by" name in the header to show it's yours.</p>
+
+      <hr style="margin:0.8rem 0;border:none;border-top:1px dashed #eee">
+      <h3 style="margin:0.6rem 0 0.3rem 0">Tips to personalise</h3>
+      <ul style="color:var(--muted);line-height:1.45">
+        <li>Change colors in <code>:root</code> to match your taste.</li>
+        <li>Replace currency rates in the script with live rates later (when allowed by API).</li>
+        <li>Remove any widget you don't need (keep code tidy to look like you made it).</li>
+      </ul>
+
+      <hr style="margin:0.8rem 0;border:none;border-top:1px dashed #eee">
+      <p style="font-size:0.85rem;color:var(--muted)"><strong>How to use</strong>: Save as <code>lab-experiment5.html</code> and open in a browser. All functionality runs on the client (no server).</p>
+    </aside>
+  </main>
+
+  <footer>
+    <div>This page implements exercises based on Experiment #5 (DOM, Events & Functions). You can edit the HTML/JS directly — everything is intentionally simple and commented for learning. Good luck!</div>
+  </footer>
+
+  <script>
+    function calculate(){
+      const n1 = parseFloat(document.getElementById('c-num1').value) || 0;
+      const n2 = parseFloat(document.getElementById('c-num2').value) || 0;
+      const op = document.getElementById('c-op').value;
+      let res;
+      switch(op){
+        case '+': res = n1 + n2; break;
+        case '-': res = n1 - n2; break;
+        case '*': res = n1 * n2; break;
+        case '/': res = (n2 !== 0) ? (n1 / n2) : "Error (divide by 0)"; break;
+        default: res = "Invalid op";
+      }
+      document.getElementById('c-output').textContent = "Result: " + res;
+    }
+    function clearCalc(){
+      document.getElementById('c-num1').value = '';
+      document.getElementById('c-num2').value = '';
+      document.getElementById('c-output').textContent = "Result: —";
+    }
+
+    function calcBMI(){
+      const w = parseFloat(document.getElementById('b-weight').value);
+      const hcm = parseFloat(document.getElementById('b-height').value);
+      const out = document.getElementById('b-output');
+
+      if(!w || !hcm || w <= 0 || hcm <= 0){
+        out.textContent = "BMI: — | Status: —";
+        return;
+      }
+      const h = hcm / 100; 
+      const bmi = w / (h * h);
+      const bmiRounded = Math.round(bmi * 10)/10;
+
+      let status = "";
+      if (bmiRounded < 18) status = "Underweight";
+      else if (bmiRounded >= 18 && bmiRounded < 25) status = "Normal";
+      else if (bmiRounded >= 25 && bmiRounded < 30) status = "Overweight";
+      else status = "Obese";
+
+      out.textContent = `BMI: ${bmiRounded} | Status: ${status}`;
+    }
+
+    const rates = {
+      USD: { toINR: 83.50 },
+      EUR: { toINR: 90.00 },
+      GBP: { toINR: 104.50 },
+      INR: { toINR: 1.0 }
+    };
+
+    function convertCurrency(){
+      const amount = parseFloat(document.getElementById('cur-amt').value) || 0;
+      const from = document.getElementById('cur-from').value;
+      const to = document.getElementById('cur-to').value;
+      const out = document.getElementById('cur-output');
+
+      const amountInINR = amount * (rates[from].toINR || 1);
+      const toRate = rates[to].toINR || 1;
+      const converted = to === 'INR' ? amountInINR : (amountInINR / toRate);
+
+      const cRounded = Math.round(converted * 100) / 100;
+      out.textContent = `Converted: ${cRounded} ${to}`;
+    }
+
+    function calculateEMI(){
+      const P = parseFloat(document.getElementById('emi-p').value) || 0;
+      const annualR = parseFloat(document.getElementById('emi-r').value) || 0;
+      const years = parseInt(document.getElementById('emi-years').value) || 0;
+      const out = document.getElementById('emi-output');
+
+      if (P <= 0 || annualR <= 0 || years <= 0){
+        out.textContent = "Monthly EMI: — (please enter valid values)";
+        return;
+      }
+      const N = years * 12;
+      const r = (annualR / 12) / 100; 
+
+      const pow = Math.pow(1 + r, N);
+      const emi = (P * r * pow) / (pow - 1);
+      const emiRounded = Math.round(emi * 100) / 100;
+      out.textContent = `Monthly EMI: ₹ ${emiRounded.toLocaleString()}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('c-op').value = '+';
+      convertCurrency();
+      calcBMI();
+    });
+  </script>
+</body>
+</html>
